@@ -1,66 +1,99 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Garuda-Hub (Laravel MVC Edition)
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+> **Misi:** [1] The Spaghetti Code Incident  
+> **Kelompok / Branch:** `The_Spaghetti_Code_Incident_gandhiMM_252410102049`
 
-## About Laravel
+Website lelang proyek IT mahasiswa yang telah **direfaktorisasi secara total** dari *spaghetti code* PHP native menjadi aplikasi berarsitektur bersih **MVC (Model-View-Controller)** menggunakan framework **Laravel 11** dan **Eloquent ORM**.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## 🏛️ Arsitektur & Perubahan Database Relasional
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+Skema database telah dirancang ulang agar memiliki relasi relasional yang kokoh:
 
-## Learning Laravel
+1. **`users`**
+   - Kolom: `id`, `name`, `email` (unique), `password` (bcrypt), `role` (`klien`, `developer`, `admin`), `timestamps`.
+   - Relasi:
+     - `projects()`: One-to-Many (`hasMany`) ke tabel `projects` (sebagai klien).
+     - `bids()`: One-to-Many (`hasMany`) ke tabel `bids` (sebagai developer).
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. **`projects`**
+   - Kolom: `id`, `client_id` (foreign key `users.id` cascade on delete), `title`, `description`, `category`, `budget_min`, `budget_max`, `deadline`, `status` (`terbuka`, `ditutup`), `timestamps`.
+   - Relasi:
+     - `client()`: Many-to-One (`belongsTo`) ke model `User`.
+     - `bids()`: One-to-Many (`hasMany`) ke model `Bid`.
+     - `winningBid()`: One-to-One (`hasOne`) bid dengan status pemenang.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+3. **`bids`**
+   - Kolom: `id`, `project_id` (foreign key `projects.id` cascade on delete), `developer_id` (foreign key `users.id` cascade on delete), `price`, `duration_days`, `proposal`, `is_winner`, `timestamps`.
+   - *Constraint Unik:* `UNIQUE(project_id, developer_id)` memastikan 1 developer hanya dapat mengajukan 1 penawaran per proyek.
+   - Relasi:
+     - `project()`: Many-to-One (`belongsTo`) ke model `Project`.
+     - `developer()`: Many-to-One (`belongsTo`) ke model `User`.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+## ✨ Fitur-Fitur Utama (MVC & Eloquent)
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- **Multi-Role Authentication & Middleware:**
+  - Registrasi & Login untuk peran `klien` dan `developer`.
+  - Akun `admin` khusus untuk manajemen platform.
+  - Middleware `RoleMiddleware` mengamankan setiap route sesuai hak akses.
+- **Klien:**
+  - Memasang proyek baru lengkap dengan rentang budget & batas lelang.
+  - Memantau penawaran masuk di dasbor klien.
+  - Memilih pemenang lelang (menggunakan DB Transaction untuk memastikan integritas data dan penutupan otomatis proyek).
+- **Developer:**
+  - Eksplorasi & pencarian proyek terbuka berdasarkan judul/kategori.
+  - Pengajuan proposal penawaran (harga, durasi pengerjaan, proposal).
+  - Dasbor pemantauan status penawaran dan status kemenangan lelang.
+- **Admin Panel:**
+  - Manajemen seluruh pengguna (ubah peran user, hapus user).
+  - Manajemen dan moderasi proyek.
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+## 🚀 Panduan Menjalankan Aplikasi di Lokal
 
-## Contributing
+### 1. Kebutuhan Sistem
+- PHP >= 8.2 (dengan ekstensi `pdo_sqlite` atau `pdo_mysql`)
+- Composer
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+### 2. Instalasi & Migrasi Database
+```bash
+# Salin konfigurasi environment jika belum ada
+cp .env.example .env
 
-## Code of Conduct
+# Generate application key
+php artisan key:generate
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# Jalankan migrasi dan isi data dummy awal
+php artisan migrate:fresh --seed
+```
 
-## Security Vulnerabilities
+### 3. Menjalankan Server Lokal
+```bash
+php artisan serve
+```
+Buka browser di `http://127.0.0.1:8000`.
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+## 🔑 Akun Demo (Seeder)
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+| Peran | Email | Password | Keterangan |
+| :--- | :--- | :--- | :--- |
+| **Admin** | `admin@garudahub.test` | `password123` | Akses panel admin kelola user & proyek |
+| **Klien** | `budi@garudahub.test` | `password123` | Memasang proyek & memilih pemenang |
+| **Developer** | `andi@garudahub.test` | `password123` | Mengajukan penawaran proposal lelang |
+| **Developer** | `rina@garudahub.test` | `password123` | Mengajukan penawaran proposal lelang |
+
+---
+
+## 📜 Riwayat Git Commit (Memenuhi Syarat Misi)
+Repositori ini memiliki minimal 5 commit terstruktur:
+1. `chore: setup laravel framework and archive legacy code`
+2. `feat: design relational schema migrations and eloquent models`
+3. `feat: implement authentication and role-based access control`
+4. `feat: implement project posting, bidding, winner selection, and dashboard`
+5. `feat: add admin panel, business validation, and blade UI layout`
