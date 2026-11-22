@@ -1,5 +1,8 @@
 <?php
 
+// NIM: 252410102049 - Gandhi MM
+// AuthController: Otentikasi aman dengan password hashing (bcrypt), session regeneration, dan CSRF protection
+
 namespace App\Http\Controllers;
 
 use App\Models\User;

@@ -1,5 +1,8 @@
 <?php
 
+// NIM: 252410102049 - Gandhi MM
+// ProjectController: Menggunakan Eloquent ORM (mencegah SQL Injection) dan validasi input ketat
+
 namespace App\Http\Controllers;
 
 use App\Models\Project;
